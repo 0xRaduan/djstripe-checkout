@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Stripe Checkout Sample</title>
+    <meta name="description" content="A demo of Stripe Payment Intents" />
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/global.css" />
+    <!-- Load Stripe.js on your website. -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script defer>
+        // Create a Checkout Session with the selected plan ID
+        var createCheckoutSession = function (planId) {
+            return fetch("/app/create-checkout-session/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    planId: planId
+                })
+            }).then(function (result) {
+                return result.json();
+            });
+        };
+
+        // Handle any errors returned from Checkout
+        var handleResult = function (result) {
+            if (result.error) {
+                var displayError = document.getElementById("error-message");
+                displayError.textContent = result.error.message;
+            }
+        };
+        window.onload = function () {
+            /* Get your Stripe publishable key to initialize Stripe.js */
+            var publicKey = "";
+            var basicPlanId = "";
+            var proPlanId = "";
+
+            var stripe = Stripe(publicKey);
+            // Setup event handler to create a Checkout Session when button is clicked
+            document
+                .getElementById("basic-plan-btn")
+                .addEventListener("click", function (evt) {
+                    createCheckoutSession(basicPlanId).then(function (data) {
+                        // Call Stripe.js method to redirect to the new Checkout page
+                        stripe
+                            .redirectToCheckout({
+                                sessionId: data.sessionId
+                            })
+                            .then(handleResult);
+                    });
+                });
+
+            // Setup event handler to create a Checkout Session when button is clicked
+            document
+                .getElementById("pro-plan-btn")
+                .addEventListener("click", function (evt) {
+                    createCheckoutSession(proPlanId).then(function (data) {
+                        // Call Stripe.js method to redirect to the new Checkout page
+                        stripe
+                            .redirectToCheckout({
+                                sessionId: data.sessionId
+                            })
+                            .then(handleResult);
+                    });
+                });
+        }
+    </script>
+</head>
+
+<body>
+    {% if request.user.has_inactive_subscription %}
+    <div>YOU HAVE INCOMPLETE SUBSCRIPTION</div>
+    {% endif %}
+    <div class="sr-root">
+        <div class="sr-main" style="display: flex;">
+            <header class="sr-header">
+                <div class="sr-header__logo"></div>
+            </header>
+            <div class="sr-container">
+                <section class="container basic-photo">
+                    <div>
+                        <h1>Bronze Plan</h1>
+                        <h4>1 photo per month</h4>
+                        <div class="pasha-image">
+                            <img src="https://picsum.photos/280/320?random=4" width="140" height="160" />
+                        </div>
+                    </div>
+                    <button id="basic-plan-btn">$5.00 per month</button>
+                </section>
+                <section class="container pro-photo">
+                    <div>
+                        <h1>Silver plan</h1>
+                        <h4>3 photos per month</h4>
+                        <div class="pasha-image-stack">
+                            <img src="https://picsum.photos/280/320?random=1" width="105" height="120"
+                                alt="Sample Pasha image 1" />
+                            <img src="https://picsum.photos/280/320?random=2" width="105" height="120"
+                                alt="Sample Pasha image 2" />
+                            <img src="https://picsum.photos/280/320?random=3" width="105" height="120"
+                                alt="Sample Pasha image 3" />
+                        </div>
+                    </div>
+                    <button id="pro-plan-btn">$14.00 per month</button>
+                </section>
+            </div>
+            <div id="error-message"></div>
+        </div>
+    </div>
+</body>
+
+</html>

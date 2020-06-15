@@ -1,0 +1,13 @@
+{% load crispy_forms_tags %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Login</h1>
+</div>
+<form method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <br>
+    <button type="submit" class="btn btn-success">Login</button>
+    <a href="{% url 'register' %}" class="btn btn-primary btn-icon-split">
+        <span class="text">Register</span>
+    </a>
+</form>
